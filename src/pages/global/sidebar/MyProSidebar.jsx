@@ -23,6 +23,8 @@ import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import SwitchRightOutlinedIcon from "@mui/icons-material/SwitchRightOutlined";
 import SwitchLeftOutlinedIcon from "@mui/icons-material/SwitchLeftOutlined";
 
+import DeveloperModeIcon from '@mui/icons-material/DeveloperMode';
+
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -185,12 +187,22 @@ const MyProSidebar = () => {
             />
         <Item
           title="Robot Control"
-          to="/robotControl"
+          to="/robot-control"
           icon={<SmartToyOutlinedIcon />}
           selected={selected}
           setSelected={setSelected}
          
         />
+
+<       Item
+          title="Dev"
+          to="/webcam"
+          icon={<DeveloperModeIcon />}
+          selected={selected}
+          setSelected={setSelected}
+         
+        />
+
             <Item
               title="Delivery Management"
               to="/delivery-management"

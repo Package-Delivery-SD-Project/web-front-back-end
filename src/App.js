@@ -9,7 +9,7 @@ import Topbar from "./pages/global/Topbar";
 
 import Dashboard from "./pages/dashboard/dashboard";
 import RobotControl from "./pages/robotControl/robotControl"
-
+import Dev from "./pages/dev/dev"
 const App = () => {
   const [theme, colorMode] = useMode();
   return (
@@ -24,6 +24,7 @@ const App = () => {
               <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/robot-control" element={<RobotControl />} />
+              <Route path="/webcam" element={<Dev />} />
               </Routes>
             </main>
           </div>
