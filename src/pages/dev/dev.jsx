@@ -23,7 +23,7 @@ function Dev() {
         }
     }, []);
 
-    camera_listener.subscribe(function(imgMes: any) {
+    camera_listener.subscribe(function(imgMes) {
         if (!imgMes) return;
 
         const canvas = document.getElementById('rgb-canvas');
