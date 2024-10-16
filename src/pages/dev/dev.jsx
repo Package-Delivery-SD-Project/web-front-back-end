@@ -1,67 +1,58 @@
-import React, { useState, useEffect } from 'react';
-import ROSLIB from 'roslib';
+import React, { useRef, useEffect, useState } from 'react';
 
-function Dev() {
+const availableMaps = ['eng_lobby', 'floor_1st', 'floor_2nd'];
 
-    // @ts-ignore
-    var ros = new ROSLIB.Ros({
-        url : 'ws://10.108.39.0:9090'
-    });
+const MapCanvas = () => {
+  const canvasRef = useRef(null);
+  const [selectedMap, setSelectedMap] = useState(availableMaps[0]);
 
-    // @ts-ignore
-    const camera_listener = new ROSLIB.Topic({
-        ros : ros,
-        name : '/webcam',
-        messageType : 'std_msgs/String'
-    });
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
 
-    useEffect(() => {
-        const canvas = document.getElementById('rgb-canvas');
-        if (canvas instanceof HTMLCanvasElement) {
-            canvas.width = 640; // Set canvas width
-            canvas.height = 480; // Set canvas height
-        }
-    }, []);
+    const image = new Image();
+    image.src = `/maps/${selectedMap}/map.png`;
+    
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    };
 
-    camera_listener.subscribe(function(imgMes) {
-        if (!imgMes) return;
+    image.onload = resizeCanvas;
+    window.addEventListener('resize', resizeCanvas);
 
-        const canvas = document.getElementById('rgb-canvas');
-        if (canvas instanceof HTMLCanvasElement) {
-            const ctx = canvas.getContext('2d');
-            if (!ctx) return;
-            const image = new Image();
-            image.onload = function() {
-                ctx.drawImage(image, 0, 0, canvas.width, canvas.height); // Fit image to canvas size
-            };
-            image.src = `data:image/png;base64,${imgMes.data}`;
-        }
-    });
+    return () => window.removeEventListener('resize', resizeCanvas);
+  }, [selectedMap]);
 
-    ros.on('connection', function() {
-        const status = document.getElementById("status")
-        if (status) status.innerHTML = "Connected";
-    });
+  const handleMapChange = (event) => {
+    setSelectedMap(event.target.value);
+  };
 
-    ros.on('error', function(error) {
-        console.log(error);
-        const status = document.getElementById("status");
-        if (status) status.innerHTML = "Error";
-    });
+  const getMousePosition = (event) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    console.log("Coordinate x: " + x, "Coordinate y: " + y);
+  };
 
-    ros.on('close', function() {
-        const status = document.getElementById("status");
-        if (status) status.innerHTML = "Closed";
-    });
+  return (
+    <div>
+      <select value={selectedMap} onChange={handleMapChange}>
+        {availableMaps.map(map => (
+          <option key={map} value={map}>
+            {map.replace('_', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+          </option>
+        ))}
+      </select>
+      <canvas 
+        ref={canvasRef} 
+        style={{ width: '100%', height: '100vh' }} 
+        onClick={getMousePosition}
+      />
+    </div>
+  );
+};
 
-    return (
-        <div id='container'>
-            <h1>Simple ROS User Interface</h1>
-            <p>Connection status: <span id="status"></span></p>
-            <p>Last /txt_msg received: <span id="msg"></span></p>
-            <canvas id='rgb-canvas' width={640} height={480}></canvas>
-        </div>
-    );
-}
-
-export default Dev;
+export default MapCanvas;

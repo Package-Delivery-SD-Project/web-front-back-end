@@ -1,0 +1,1 @@
+export const availableMaps = ['eng_lobby', '1st_floor', '2nd_floor'];

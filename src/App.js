@@ -7,9 +7,14 @@ import { MyProSidebarProvider } from "./pages/global/sidebar/sidebarContext";
 
 import Topbar from "./pages/global/Topbar";
 
+import { RosProvider } from './RosContext'; // Import the RosProvider
+
+
 import Dashboard from "./pages/dashboard/dashboard";
 import RobotControl from "./pages/robotControl/robotControl"
 import Dev from "./pages/dev/dev"
+
+
 const App = () => {
   const [theme, colorMode] = useMode();
   return (
@@ -21,11 +26,17 @@ const App = () => {
             <main>
             <Topbar />
 
-              <Routes>
+
+
+            {/*Wrapped inside RosProvider, */}
+            <RosProvider>
+             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/robot-control" element={<RobotControl />} />
               <Route path="/webcam" element={<Dev />} />
               </Routes>
+            </RosProvider>
+
             </main>
           </div>
         </MyProSidebarProvider>

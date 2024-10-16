@@ -1,84 +1,112 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography } from "@mui/material";
-import Header from "../../components/Header";
+import React, { useState, useEffect, useCallback } from 'react';
+import { useRos } from '../../RosContext'; // Import the useRos hook
 
-const RobotControl = () => {
-  const [stickPositions, setStickPositions] = useState({
-    'controller-b10': { x: 0, y: 0 },
-    'controller-b11': { x: 0, y: 0 }
-  });
+const GamepadComponent = () => {
+  const [controllerIndex, setControllerIndex] = useState(null);
+  const [axes, setAxes] = useState([]);
+  const [isConnected, setIsConnected] = useState(false);
+  
+  // Use the RosContext to get the camera feed and publishJoyData function
+  const { imageSrc, error, publishJoyData } = useRos();
 
-  let controllerIndex = null;
+  const handleConnectDisconnect = useCallback((event, connected) => {
+    const gamepad = event.gamepad;
+    console.log(gamepad);
 
-  useEffect(() => {
-    const handleGamepadConnected = (event) => {
-      const gamepad = event.gamepad;
-      controllerIndex = gamepad.index;
-      console.log("connected");
-    };
-
-    window.addEventListener("gamepadconnected", handleGamepadConnected);
-
-    const intervalId = setInterval(controllerLoop, 16); // 60fps
-
-    return () => {
-      window.removeEventListener("gamepadconnected", handleGamepadConnected);
-      clearInterval(intervalId);
-    };
+    if (connected) {
+      setControllerIndex(gamepad.index);
+      setIsConnected(true);
+      setAxes(gamepad.axes.map(() => 0));
+    } else {
+      setControllerIndex(null);
+      setIsConnected(false);
+    }
   }, []);
 
-  function updateStick(elementId, leftRightAxis, upDownAxis) {
-    const multiplier = 25;
-    const stickLeftRight = leftRightAxis * multiplier;
-    const stickUpDown = upDownAxis * multiplier;
+  useEffect(() => {
+    const handleConnect = (event) => handleConnectDisconnect(event, true);
+    const handleDisconnect = (event) => handleConnectDisconnect(event, false);
 
-    const stick = document.getElementById(elementId);
-    if (stick) {
-      const x = Number(stick.dataset.originalXPosition);
-      const y = Number(stick.dataset.originalYPosition);
+    window.addEventListener("gamepadconnected", handleConnect);
+    window.addEventListener("gamepaddisconnected", handleDisconnect);
 
-      const newX = x + stickLeftRight;
-      const newY = y + stickUpDown;
+    return () => {
+      window.removeEventListener("gamepadconnected", handleConnect);
+      window.removeEventListener("gamepaddisconnected", handleDisconnect);
+    };
+  }, [handleConnectDisconnect]);
 
-      stick.setAttribute("cx", newX);
-      stick.setAttribute("cy", newY);
+  useEffect(() => {
+    let animationFrameId;
 
-      setStickPositions(prevPositions => ({
-        ...prevPositions,
-        [elementId]: { x: newX.toFixed(2), y: newY.toFixed(2) }
-      }));
-    }
-  }
+    const gameLoop = () => {
+      if (controllerIndex !== null) {
+        const gamepad = navigator.getGamepads()[controllerIndex];
+        
+        setAxes(gamepad.axes);
 
-  function handleSticks(axes) {
-    updateStick("controller-b10", axes[0], axes[1]);
-    updateStick("controller-b11", axes[2], axes[3]);
-  }
+        // Prepare Twist message data
+        const twistData = {
+          linear: {
+              x: gamepad.axes[1]*-1, // Left stick up/down
+              y: 0, // Left stick left/right
+              z: 0 // Not used, set to 0
+          },
+          angular: {
+              x: 0, // Not used, set to 0
+              y: 0, // Not used, set to 0
+              z: gamepad.axes[2] // Right stick left/right for rotation
+          }
+      };
+      
 
-  function controllerLoop() {
-    if (controllerIndex !== null) {
-      const gamepad = navigator.getGamepads()[controllerIndex];
-      if (gamepad) {
-        handleSticks(gamepad.axes);
+      publishJoyData(twistData);  // Publish to ROS using the corrected data context function
       }
-    }
-  }
+      animationFrameId = requestAnimationFrame(gameLoop);
+    };
+
+    gameLoop();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [controllerIndex, publishJoyData]);
+
+  const AxisComponent = ({ index, value }) => (
+    <div id={`axis-${index}`} className='axis'>
+      <div className='axis-name'>AXIS {index}</div>
+      <div className='axis-value'>{value.toFixed(4)}</div>
+    </div>
+  );
 
   return (
-    <Box>
-      <Header title="Robot Control" subtitle="Gamepad Stick Positions" />
-      <Box display="flex" justifyContent="space-around" mt={4}>
-        {Object.entries(stickPositions).map(([stickId, position]) => (
-          <Box key={stickId} textAlign="center">
-            <Typography variant="h6">{stickId}</Typography>
-            <Typography>X: {position.x}</Typography>
-            <Typography>Y: {position.y}</Typography>
-          </Box>
-        ))}
-      </Box>
-      {/* Add your SVG or canvas element here for visual representation */}
-    </Box>
+    <div>
+      <h1>Manual Teleop</h1>
+      <div id="controller-not-connected-area" style={{ display: isConnected ? 'none' : 'block' }}>
+        Controller not connected
+      </div>
+      
+      <div id="controller-connected-area" style={{ display: isConnected ? 'block' : 'none' }}>
+        <h2>Controller Connected</h2>
+        <div id="axes">
+          {axes.map((value, index) => (
+            <AxisComponent key={index} index={index} value={value} />
+          ))}
+        </div>
+      </div>
+
+      {/* Camera Feed Display */}
+      <div>
+        <h2>ROS Camera Feed</h2>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {imageSrc ? (
+          <img src={imageSrc} alt="ROS Camera Feed" width="640" height="480" />
+        ) : (
+          <p>Loading image...</p>
+        )}
+      </div>
+    </div>
   );
 };
 
-export default RobotControl;
+export default GamepadComponent;
