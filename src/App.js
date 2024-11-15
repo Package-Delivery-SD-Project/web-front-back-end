@@ -13,6 +13,7 @@ import { RosProvider } from './RosContext'; // Import the RosProvider
 import Dashboard from "./pages/dashboard/dashboard";
 import RobotControl from "./pages/robotControl/robotControl"
 import Dev from "./pages/dev/dev"
+import SelectionPage from "./pages/routePlanning/routePlanning"
 
 
 const App = () => {
@@ -24,16 +25,18 @@ const App = () => {
         <MyProSidebarProvider>
           <div style={{ height: "100%", width: "100%" }}>
             <main>
+            <RosProvider>
             <Topbar />
 
 
 
             {/*Wrapped inside RosProvider, */}
-            <RosProvider>
+          
              <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/robot-control" element={<RobotControl />} />
               <Route path="/webcam" element={<Dev />} />
+              <Route path="/route-planning" element={<SelectionPage />} />
               </Routes>
             </RosProvider>
 

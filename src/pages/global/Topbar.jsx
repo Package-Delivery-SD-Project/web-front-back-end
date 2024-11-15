@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from 'react';
 import { useContext } from "react";
 import { ColorModeContext, tokens } from "../../theme";
-import { useTheme, Box, IconButton, InputBase } from "@mui/material";
+import { useTheme, Box, IconButton, InputBase, Button } from "@mui/material";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
@@ -9,12 +9,16 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import SearchIcon from "@mui/icons-material/Search";
+import RouterIcon from '@mui/icons-material/Router';
 import { useProSidebar } from "react-pro-sidebar";
+import { useRos } from '../../RosContext';
+
 const Topbar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
   const { toggleSidebar, broken, rtl } = useProSidebar();
+  const { initRos, isConnected } = useRos();
 
   return (
     <Box display="flex" justifyContent="space-between" p={2}>
@@ -40,10 +44,23 @@ const Topbar = () => {
         </Box>
       </Box>
       <Box display="flex">
+        {/* ROS Connection Button */}
+        <IconButton 
+          onClick={initRos}
+          sx={{
+            backgroundColor: isConnected ? colors.greenAccent[600] : colors.redAccent[600],
+            '&:hover': {
+              backgroundColor: isConnected ? colors.greenAccent[700] : colors.redAccent[700],
+            },
+            marginRight: '10px'
+          }}
+        >
+          <RouterIcon />
+        </IconButton>
+
         <IconButton onClick={colorMode.toggleColorMode}>
           {theme.palette.mode === "dark" ? (
-            
-           <LightModeOutlinedIcon />
+            <LightModeOutlinedIcon />
           ) : (
             <DarkModeOutlinedIcon />
           )}
