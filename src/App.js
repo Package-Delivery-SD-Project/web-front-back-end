@@ -1,7 +1,6 @@
 import { ColorModeContext, useMode } from "./theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 
-import logo from './logo.svg';
 import { Routes, Route } from "react-router-dom";
 import { MyProSidebarProvider } from "./pages/global/sidebar/sidebarContext";
 
@@ -27,11 +26,6 @@ const App = () => {
             <main>
             <RosProvider>
             <Topbar />
-
-
-
-            {/*Wrapped inside RosProvider, */}
-          
              <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/robot-control" element={<RobotControl />} />

@@ -35,7 +35,7 @@ const Contacts = () => {
           x: 0.0,
           y: 0.0,
           z: 0.0,
-          w: 1.0
+          w: 1.07
         }
       };
 
@@ -104,12 +104,15 @@ const Contacts = () => {
           onClick={() => handleSubmit(params)}
           disabled={isSubmitted}
           style={{
-            backgroundColor: isSubmitted ? colors.grey[500] : colors.blueAccent[600],
+            backgroundColor: isSubmitted ? colors.grey[500] : (theme.palette.success.main),
             color: colors.grey[100],
             border: 'none',
             padding: '8px 16px',
             borderRadius: '4px',
             cursor: isSubmitted ? 'not-allowed' : 'pointer',
+            '&:hover': {
+              backgroundColor: isSubmitted ? colors.grey[500] : theme.palette.success.dark,
+            },
           }}
         >
           Submit
@@ -123,36 +126,43 @@ const Contacts = () => {
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="ROUTE PLANNING" subtitle="Please select a destination" />
         <Box display="flex" gap="10px">
-          {isSubmitted && !isConfirmed && (
-            <button
-              onClick={handleConfirm}
-              style={{
-                backgroundColor: colors.greenAccent[600],
-                color: colors.grey[100],
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-              }}
-            >
-              Confirm Selection
-            </button>
-          )}
-          {(isSubmitted || isConfirmed) && (
-            <button
-              onClick={handleReset}
-              style={{
-                backgroundColor: colors.redAccent[600],
-                color: colors.grey[100],
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-              }}
-            >
-              Reset
-            </button>
-          )}
+        {isSubmitted && !isConfirmed && (
+  <button
+    onClick={handleConfirm}
+    style={{
+      backgroundColor: theme.palette.success.main,
+      color: colors.grey[100],
+      border: 'none',
+      padding: '8px 16px',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: theme.palette.success.dark,
+      },
+    }}
+  >
+    Confirm Selection
+  </button>
+)}
+{(isSubmitted || isConfirmed) && (
+  <button
+    onClick={handleReset}
+    style={{
+      backgroundColor: theme.palette.error.main,
+      color: colors.grey[100],
+      border: 'none',
+      padding: '8px 16px',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: theme.palette.error.dark,
+      },
+    }}
+  >
+    Cancel
+  </button>
+)}
+
         </Box>
       </Box>
       <Box
