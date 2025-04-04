@@ -14,18 +14,39 @@
         setState(`data:image/jpeg;base64,${message.data}`);
       }
     },
-
+    currentState: {
+      name: '/current_state',
+      messageType: 'std_msgs/String',
+      type: 'subscriber',
+      callback: (message, setState) => {
+        setState(message.data);
+      }
+    },
+    estop: {
+      name: '/estop',
+      messageType: 'std_msgs/Bool',
+      type: 'publisher'
+    },
+    cancelMove: {
+      name: '/cancel_move',
+      messageType: 'std_msgs/Bool',
+      type: 'publisher'
+    },
     joy: {
       name: '/package_joy',
       messageType: 'sensor_msgs/Joy',
+      type: 'publisher'
+    },
+    teleopEnable: {
+      name: '/teleopEnable',
+      messageType: 'std_msgs/Bool',
       type: 'publisher'
     },
     goalPoint: {
       name: '/goal_point',
       messageType: 'geometry_msgs/Pose',
       type: 'publisher'
-    }
-    ,
+    },
     currentPoint: {
       name: '/current_point',
       messageType: 'geometry_msgs/Pose',
@@ -43,6 +64,7 @@
   export const RosProvider = ({ children }) => {
       const [ros, setRos] = useState(null);
       const [isConnected, setIsConnected] = useState(false);
+      const [ESTOP,setEstop] = useState(false);
       const [error, setError] = useState('');
       const rosInstanceRef = useRef(null);
       
@@ -54,6 +76,7 @@
             position: { x: 0, y: 0, z: 0 },
             orientation: { x: 0, y: 0, z: 0, w: 1 }
           },
+          currentState: '' // Add this line
       
       });
 
@@ -150,11 +173,16 @@
           }
       }, [cleanup]);
 
+      
+
+        const EstopStart = () => {
+          setEstop(prev => !prev);
+      };
       //--------------------CREATE NEW CONNECTION --------------------
 
       const createNewConnection = () => {
           const rosInstance = new ROSLIB.Ros({
-              url: 'ws://10.108.35.232:9090'
+              url: 'ws://10.108.32.73:9090'
           });
 
           rosInstanceRef.current = rosInstance;
@@ -205,9 +233,18 @@
 
       //-------------------- PUBLISH GOAL POINT FUNCTION --------------------
 
+      
 
+
+      const publishEstop = useCallback((state) => {
+        publish('estop', { data: state });
+    }, [publish]);
       const publishGoalPoint = useCallback((pose) => {
           publish('goalPoint', pose);
+      }, [publish]);
+      const publishCancelMove = useCallback(() => {
+        publish('cancelMove', { data: true });
+        console.log("whytf this aint working lmao")
       }, [publish]);
 
       React.useEffect(() => {
@@ -219,9 +256,13 @@
               ros,
               error,
               isConnected,
+              ESTOP,
+              EstopStart,
               initRos,
               publishJoyData,
               publishGoalPoint,
+              publishEstop,
+              publishCancelMove,
               publish,
               ...topicStates // Spreads all topic-specific states
           }}>
@@ -229,6 +270,8 @@
           </RosContext.Provider>
       );
   };
+
+
 
   export const useRos = () => React.useContext(RosContext);
 

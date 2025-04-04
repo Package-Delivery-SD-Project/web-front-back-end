@@ -4,7 +4,8 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { mockDataContacts } from "../../data/mockData";
 import Header from "../../components/Header";
-import { useRos } from "../../RosContext"; // Add this import
+import { useRos } from "../../RosContext";
+import { Button } from "@mui/material";
 
 const Contacts = () => {
   const theme = useTheme();
@@ -15,16 +16,27 @@ const Contacts = () => {
   const [isConfirmed, setIsConfirmed] = useState(false);
   
   // Get the publishGoalPoint function from ROS context
-  const { publishGoalPoint } = useRos();
+  const { publishGoalPoint,publishCancelMove } = useRos();
 
   const handleSubmit = (params) => {
     setSelectedRow(params.row);
     setIsSubmitted(true);
   };
 
+  const handleReturnHome = (params) => {
+    const boolMessage = {
+      data: true
+    };
+  
+    console.log('Published Cancel Move');
+
+    publishCancelMove(boolMessage);
+
+
+  };
+
   const handleConfirm = () => {
     if (selectedRow) {
-      // Create the pose message format that ROS expects
       const poseMessage = {
         position: {
           x: selectedRow.poseX,
@@ -38,13 +50,16 @@ const Contacts = () => {
           w: 1.07
         }
       };
-
-      // Publish the goal point to ROS
       publishGoalPoint(poseMessage);
     }
     
     setIsConfirmed(true);
     setShowConfirmation(true);
+
+    
+  setTimeout(() => {
+    handleReset();
+  }, 500); // slight delay so snackbar can show
   };
 
   const handleReset = () => {
@@ -61,7 +76,6 @@ const Contacts = () => {
     setShowConfirmation(false);
   };
 
-  // Rest of your component code remains the same...
   const columns = [
     { field: "id", headerName: "Id", width: 100 },
     {
@@ -104,7 +118,7 @@ const Contacts = () => {
           onClick={() => handleSubmit(params)}
           disabled={isSubmitted}
           style={{
-            backgroundColor: isSubmitted ? colors.grey[500] : (theme.palette.success.main),
+            backgroundColor: isSubmitted ? colors.grey[500] : theme.palette.success.main,
             color: colors.grey[100],
             border: 'none',
             padding: '8px 16px',
@@ -124,45 +138,69 @@ const Contacts = () => {
   return (
     <Box m="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
+        
         <Header title="ROUTE PLANNING" subtitle="Please select a destination" />
-        <Box display="flex" gap="10px">
-        {isSubmitted && !isConfirmed && (
-  <button
-    onClick={handleConfirm}
-    style={{
-      backgroundColor: theme.palette.success.main,
-      color: colors.grey[100],
-      border: 'none',
-      padding: '8px 16px',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      '&:hover': {
-        backgroundColor: theme.palette.success.dark,
-      },
-    }}
-  >
-    Confirm Selection
-  </button>
-)}
-{(isSubmitted || isConfirmed) && (
-  <button
-    onClick={handleReset}
-    style={{
-      backgroundColor: theme.palette.error.main,
-      color: colors.grey[100],
-      border: 'none',
-      padding: '8px 16px',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      '&:hover': {
-        backgroundColor: theme.palette.error.dark,
-      },
-    }}
-  >
-    Cancel
-  </button>
-)}
+        
+        <Button
+          onClick={handleReturnHome}
+          variant="contained"
+          sx={{
+            width: '180px',
+            fontWeight: 'bold',
+            background: 'linear-gradient(to bottom, #2196F3, #1976D2)',
+            color: '#FFFFFF',
+            transition: 'transform 0.01s ease-in-out',
+            '&:hover': {
+              background: 'linear-gradient(to bottom, #42A5F5, #1565C0)',
+              transform: 'scale(1.01)',
+            },
+            '&:active': {
+              transform: 'scale(0.99)',
+            },
+            boxShadow: '0 2px 5px rgba(25, 118, 210, 0.4)',
+            borderRadius: '8px',
+          }}
+        >
+          Return to Home
+        </Button>
 
+        <Box display="flex" gap="10px">
+          {isSubmitted && !isConfirmed && (
+            <button
+              onClick={handleConfirm}
+              style={{
+                backgroundColor: theme.palette.success.main,
+                color: colors.grey[100],
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                '&:hover': {
+                  backgroundColor: theme.palette.success.dark,
+                },
+              }}
+            >
+              Confirm Selection
+            </button>
+          )}
+          {isSubmitted && !isConfirmed && (
+            <button
+              onClick={handleReset}
+              style={{
+                backgroundColor: theme.palette.error.main,
+                color: colors.grey[100],
+                border: 'none',
+                padding: '8px 16px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                '&:hover': {
+                  backgroundColor: theme.palette.error.dark,
+                },
+              }}
+            >
+              Cancel
+            </button>
+          )}
         </Box>
       </Box>
       <Box

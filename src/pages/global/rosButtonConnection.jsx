@@ -8,6 +8,7 @@ const RosConnectionButton = () => {
     const handleToggleConnection = () => {
         if (isConnected && ros) {
             ros.close();
+            
         } else {
             initRos();
         }
