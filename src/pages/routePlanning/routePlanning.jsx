@@ -1,5 +1,6 @@
+// ========================= IMPORTS =========================
 import React, { useState } from "react";
-import { Box, useTheme, Snackbar, Alert } from "@mui/material";
+import { Box, useTheme, Snackbar, Alert, TextField } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { mockDataContacts } from "../../data/mockData";
@@ -7,7 +8,9 @@ import Header from "../../components/Header";
 import { useRos } from "../../RosContext";
 import { Button } from "@mui/material";
 
+// ========================= MAIN COMPONENT =========================
 const Contacts = () => {
+  // ========================= STATE VARIABLES =========================
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -15,24 +18,29 @@ const Contacts = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   
-  // Get the publishGoalPoint function from ROS context
-  const { publishGoalPoint,publishCancelMove } = useRos();
+  const { publishGoalPoint, publishCancelMove, publishEmail } = useRos();
+  const [destinationEmail, setDestinationEmail] = useState("");
 
+  // ========================= HANDLERS =========================
   const handleSubmit = (params) => {
     setSelectedRow(params.row);
     setIsSubmitted(true);
   };
 
-  const handleReturnHome = (params) => {
-    const boolMessage = {
-      data: true
-    };
-  
+  const handleReturnHome = () => {
+    const boolMessage = { data: true };
     console.log('Published Cancel Move');
-
     publishCancelMove(boolMessage);
+  };
 
-
+  const handleEmailChange = (e) => {
+    const newEmail = e.target.value;
+    setDestinationEmail(newEmail);
+    if (publishEmail) {
+      publishEmail({ data: newEmail });
+      console.log("tTESTINGINOKAJSDFLKJ")
+    }
+    
   };
 
   const handleConfirm = () => {
@@ -41,25 +49,24 @@ const Contacts = () => {
         position: {
           x: selectedRow.poseX,
           y: selectedRow.poseY,
-          z: 0.0
+          z: 0.0,
         },
         orientation: {
           x: 0.0,
           y: 0.0,
           z: 0.0,
-          w: 1.07
-        }
+          w: 1.07,
+        },
       };
       publishGoalPoint(poseMessage);
     }
-    
+
     setIsConfirmed(true);
     setShowConfirmation(true);
 
-    
-  setTimeout(() => {
-    handleReset();
-  }, 500); // slight delay so snackbar can show
+    setTimeout(() => {
+      handleReset();
+    }, 500);
   };
 
   const handleReset = () => {
@@ -70,19 +77,18 @@ const Contacts = () => {
   };
 
   const handleCloseConfirmation = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
+    if (reason === "clickaway") return;
     setShowConfirmation(false);
   };
 
+  // ========================= COLUMNS FOR DATA GRID =========================
   const columns = [
     { field: "id", headerName: "Id", width: 100 },
     {
       field: "name",
       headerName: "Name",
       cellClassName: "name-column--cell",
-      width: 200,
+      width: 100,
     },
     {
       field: "floor",
@@ -120,13 +126,10 @@ const Contacts = () => {
           style={{
             backgroundColor: isSubmitted ? colors.grey[500] : theme.palette.success.main,
             color: colors.grey[100],
-            border: 'none',
-            padding: '8px 16px',
-            borderRadius: '4px',
-            cursor: isSubmitted ? 'not-allowed' : 'pointer',
-            '&:hover': {
-              backgroundColor: isSubmitted ? colors.grey[500] : theme.palette.success.dark,
-            },
+            border: "none",
+            padding: "8px 16px",
+            borderRadius: "4px",
+            cursor: isSubmitted ? "not-allowed" : "pointer",
           }}
         >
           Submit
@@ -135,35 +138,47 @@ const Contacts = () => {
     },
   ];
 
+  // ========================= RENDER UI =========================
   return (
     <Box m="20px">
+      {/* Header Section */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        
-        <Header title="ROUTE PLANNING" subtitle="Please select a destination" />
-        
-        <Button
-          onClick={handleReturnHome}
-          variant="contained"
-          sx={{
-            width: '180px',
-            fontWeight: 'bold',
-            background: 'linear-gradient(to bottom, #2196F3, #1976D2)',
-            color: '#FFFFFF',
-            transition: 'transform 0.01s ease-in-out',
-            '&:hover': {
-              background: 'linear-gradient(to bottom, #42A5F5, #1565C0)',
-              transform: 'scale(1.01)',
-            },
-            '&:active': {
-              transform: 'scale(0.99)',
-            },
-            boxShadow: '0 2px 5px rgba(25, 118, 210, 0.4)',
-            borderRadius: '8px',
-          }}
-        >
-          Return to Home
-        </Button>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box>
+            <Header title="ROUTE PLANNING" subtitle="Please select a destination" />
+          </Box>
 
+          <Box display="flex" alignItems="center" gap="10px" ml={2}>
+            <TextField
+              label="Destination Email"
+              variant="outlined"
+              type="email"
+              value={destinationEmail}
+              onChange={handleEmailChange}
+              placeholder="Enter email"
+              sx={{
+                width: 250,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: colors.grey[300],
+                  },
+                  "&:hover fieldset": {
+                    borderColor: colors.grey[100],
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: colors.grey[100],
+                },
+                "& .MuiInputBase-input": {
+                  color: colors.grey[100],
+                },
+                backgroundColor: colors.primary[400],
+              }}
+            />
+          </Box>
+        </Box>
+
+        {/* Action Buttons */}
         <Box display="flex" gap="10px">
           {isSubmitted && !isConfirmed && (
             <button
@@ -171,13 +186,10 @@ const Contacts = () => {
               style={{
                 backgroundColor: theme.palette.success.main,
                 color: colors.grey[100],
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                '&:hover': {
-                  backgroundColor: theme.palette.success.dark,
-                },
+                border: "none",
+                padding: "8px 16px",
+                borderRadius: "4px",
+                cursor: "pointer",
               }}
             >
               Confirm Selection
@@ -189,13 +201,10 @@ const Contacts = () => {
               style={{
                 backgroundColor: theme.palette.error.main,
                 color: colors.grey[100],
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                '&:hover': {
-                  backgroundColor: theme.palette.error.dark,
-                },
+                border: "none",
+                padding: "8px 16px",
+                borderRadius: "4px",
+                cursor: "pointer",
               }}
             >
               Cancel
@@ -203,62 +212,63 @@ const Contacts = () => {
           )}
         </Box>
       </Box>
-      <Box
-        m="8px 0 0 0"
-        width="100%"
-        height="80vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "none",
-            backgroundColor: colors.blueAccent[700],
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-            color: `${colors.grey[100]} !important`,
-          },
-        }}
-      >
-        <DataGrid
-          rows={mockDataContacts}
-          columns={columns}
-          components={{ Toolbar: GridToolbar }}
-        />
+
+      {/* DataGrid Section */}
+      <Box display="flex" justifyContent="flex-start">
+        <Box
+          m="8px 0 0 0"
+          width="50%"
+          height="80vh"
+          sx={{
+            "& .MuiDataGrid-root": { border: "none" },
+            "& .MuiDataGrid-cell": { borderBottom: "none" },
+            "& .name-column--cell": { color: colors.greenAccent[300] },
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: colors.blueAccent[700],
+              borderBottom: "none",
+            },
+            "& .MuiDataGrid-virtualScroller": {
+              backgroundColor: colors.primary[400],
+            },
+            "& .MuiDataGrid-footerContainer": {
+              borderTop: "none",
+              backgroundColor: colors.blueAccent[700],
+            },
+            "& .MuiCheckbox-root": {
+              color: `${colors.greenAccent[200]} !important`,
+            },
+            "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
+              color: `${colors.grey[100]} !important`,
+            },
+          }}
+        >
+          <DataGrid
+            rows={mockDataContacts}
+            columns={columns}
+            components={{ Toolbar: GridToolbar }}
+          />
+        </Box>
       </Box>
 
-      <Snackbar 
-        open={showConfirmation} 
-        autoHideDuration={3000} 
+      {/* Snackbar Confirmation */}
+      <Snackbar
+        open={showConfirmation}
+        autoHideDuration={3000}
         onClose={handleCloseConfirmation}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Alert 
-          onClose={handleCloseConfirmation} 
-          severity="success" 
-          sx={{ width: '100%' }}
+        <Alert
+          onClose={handleCloseConfirmation}
+          severity="success"
+          sx={{ width: "100%" }}
         >
-          {selectedRow && `Confirmed destination: ${selectedRow.name} on floor ${selectedRow.floor}`}
+          {selectedRow &&
+            `Confirmed destination: ${selectedRow.name} on floor ${selectedRow.floor}`}
         </Alert>
       </Snackbar>
     </Box>
   );
 };
 
+// ========================= EXPORT COMPONENT =========================
 export default Contacts;

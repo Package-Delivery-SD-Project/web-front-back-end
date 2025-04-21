@@ -16,7 +16,7 @@ export const mockDataContacts = [
   },
     {
     id: 104,
-    name: "HELL",
+    name: "Lab 2",
     floor: 0,
     poseX: 400,
     poseY: 900,

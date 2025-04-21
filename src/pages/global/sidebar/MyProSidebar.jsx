@@ -225,20 +225,7 @@ const MyProSidebar = () => {
             >
               System
             </Typography>
-            <Item
-              title="Status and Alerts"
-              to="/status-alerts"
-              icon={<NotificationsActiveOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Maintenance"
-              to="/maintenance"
-              icon={<BuildOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+
             <Item
               title="Settings"
               to="/settings"

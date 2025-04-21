@@ -15,19 +15,20 @@ const RosConnectionButton = () => {
     };
 
     return (
-        <Button 
-            onClick={handleToggleConnection}
-            variant="contained"
-            sx={{
-                width: '150px',
-                bgcolor: isConnected ? 'error.main' : 'success.main',
-                '&:hover': {
-                    bgcolor: isConnected ? 'error.dark' : 'success.dark',
-                }
-            }}
-        >
-            {isConnected ? 'Disconnect from Ros' : 'Connect to ROS'}
-        </Button>
+<Button 
+    onClick={handleToggleConnection}
+    variant="contained"
+    sx={{
+        width: '200px', // fixed width of 150px
+        bgcolor: isConnected ? 'error.main' : 'success.main',
+        '&:hover': {
+            bgcolor: isConnected ? 'error.dark' : 'success.dark',
+        }
+    }}
+>
+    {isConnected ? 'Disconnect from Ros' : 'Connect to ROS'}
+</Button>
+
     );
 };
 

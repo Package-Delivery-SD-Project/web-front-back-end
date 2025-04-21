@@ -13,6 +13,7 @@ import Dashboard from "./pages/dashboard/dashboard";
 import RobotControl from "./pages/robotControl/robotControl"
 import Dev from "./pages/dev/dev"
 import SelectionPage from "./pages/routePlanning/routePlanning"
+import SettingsComponent from "./pages/settings/settings"
 
 
 const App = () => {
@@ -31,6 +32,7 @@ const App = () => {
               <Route path="/robot-control" element={<RobotControl />} />
               <Route path="/webcam" element={<Dev />} />
               <Route path="/route-planning" element={<SelectionPage />} />
+              <Route path="/settings" element={<SettingsComponent />} />
               </Routes>
             </RosProvider>
 
