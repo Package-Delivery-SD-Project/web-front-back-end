@@ -49,8 +49,8 @@
       type: 'publisher'
     },
     goalPoint: {
-      name: '/goal_point',
-      messageType: 'geometry_msgs/Pose',
+      name: '/move_base_simple/goal',
+      messageType: 'geometry_msgs/PoseStamped',
       type: 'publisher'
     },
     currentPoint: {
@@ -63,8 +63,6 @@
         setState({ position, orientation });
       }
     }
-    
-
   };
 
   export const RosProvider = ({ children }) => {
@@ -96,7 +94,6 @@
             orientation: { x: 0, y: 0, z: 0, w: 1 }
           },
           currentState: '' // Add this line
-      
       });
 
       //--------------------CLEAN UP FUNCTION--------------------
@@ -260,11 +257,24 @@
       //-------------------- GENERIC PUBLISH FUNCTION --------------------
 
       const publish = useCallback((topicName, message) => {
-          const publisher = topicInstances[topicName];
-          if (publisher && TOPICS[topicName].type === 'publisher') {
-              publisher.publish(new ROSLIB.Message(message));
-          }
-      }, [topicInstances]);
+        const publisher = topicInstances[topicName];
+        console.log(`[publish] Topic: ${topicName}`);
+        console.log(`[publish] Message:`, message);
+        
+        if (!publisher) {
+            console.warn(`[publish] No publisher found for topic: ${topicName}`);
+            return;
+        } 
+    
+        if (TOPICS[topicName].type !== 'publisher') {
+            console.warn(`[publish] Topic ${topicName} is not of type 'publisher'`);
+            return;
+        }
+    
+        console.log(`[publish] Publishing to ${topicName}...`);
+        publisher.publish(new ROSLIB.Message(message));
+    }, [topicInstances]);
+    
 
       //-------------------- PUBLISH JOY DATA FUNCTION --------------------
 
@@ -280,18 +290,34 @@
       }, [publish]);
 
       //-------------------- PUBLISH GOAL POINT FUNCTION --------------------
+//-------------------- PUBLISH EMAIL FUNCTION --------------------
+
+const publishEmail = useCallback((state) => {
+  console.log('[publishEmail] Called with state:', state);
+  publish('email', { data: state.data });
+
+}, [publish]);
 
       
 
-      const  publishEmail= useCallback((state) => {
-        publish('email', { data: state });
-    }, [publish]);
+
       const publishEstop = useCallback((state) => {
         publish('estop', { data: state });
     }, [publish]);
-      const publishGoalPoint = useCallback((pose) => {
-          publish('goalPoint', pose);
-      }, [publish]);
+    const publishGoalPoint = useCallback((pose) => {
+      const goalMessage = {
+        header: {
+          frame_id: "map",  // or "base_link", depending on your setup
+          stamp: { secs: 0, nsecs: 0 }  // optional dummy stamp
+        },
+        pose: {
+          position: pose.position,
+          orientation: pose.orientation
+        }
+      };
+      publish('goalPoint', goalMessage);
+    }, [publish]);
+    
       const publishCancelMove = useCallback(() => {
         publish('cancelMove', { data: true });
         console.log("whytf this aint working lmao")
