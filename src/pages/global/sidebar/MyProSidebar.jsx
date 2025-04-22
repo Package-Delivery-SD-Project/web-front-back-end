@@ -145,7 +145,7 @@ const MyProSidebar = () => {
                   alt="robot image"
                   width="100px"
                   height="100px"
-                  src={"../../assets/robot.jpg"}
+                  src={"../../assets/solidwork_1.png"}
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
               </Box>

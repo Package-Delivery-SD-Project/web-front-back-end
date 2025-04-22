@@ -279,12 +279,9 @@
       //-------------------- PUBLISH JOY DATA FUNCTION --------------------
 
       const publishJoyData = useCallback((axes) => {
-        console.log('Publishing joystick data:', {
-          axes: [axes.angular.z, axes.linear.x],
-          buttons: []
-      });  // Log the joystick data being published
+          // Log the joystick data being published
           publish('joy', {
-              axes: [axes.angular.z, axes.linear.x],
+              axes: [-axes.angular.z, axes.linear.x],
               buttons: []
           });
       }, [publish]);
