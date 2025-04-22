@@ -1,6 +1,77 @@
 export const mockDataContacts = [
 
   {
+    id: 1000,
+    name: "TRAIL Pillar",
+    floor: 1,
+    poseX: 3.7,
+    poseY: -2.8,
+  },
+  {
+    id: 1001,
+    name: "TRAIL Lab",
+    floor: 1,
+    poseX: 0.7,
+    poseY: -3.9,
+  },
+  {
+    id: 1002,
+    name: "Elevator 1",
+    floor: 1,
+    poseX: 12.9,
+    poseY: -4.5,
+  },
+  {
+    id: 1003,
+    name: "Elevator 2",
+    floor: 1,
+    poseX: 12.2,
+    poseY: -2,
+  },
+  {
+    id: 1004,
+    name: "Elevator 3",
+    floor: 1,
+    poseX: 12.2,
+    poseY: 0.8,
+  },
+  {
+    id: 1005,
+    name: "TFR Room",
+    floor: 1,
+    poseX: 10.9,
+    poseY: 17.1,
+  },
+  {
+    id: 1006,
+    name: "Front Door A",
+    floor: 1,
+    poseX: 8,
+    poseY: 16.6,
+  },
+  {
+    id: 1008,
+    name: "Front Door B",
+    floor: 1,
+    poseX: -6.52,
+    poseY: 13.25,
+  },
+  {
+    id: 1009,
+    name: "Front Desk",
+    floor: 1,
+    poseX: 4.2,
+    poseY: 11.6,
+  },
+  {
+    id: 1010,
+    name: "Hallway To SERC",
+    floor: 1,
+    poseX: 2.75,
+    poseY: -9.2,
+  },
+  {
+
     id: 302,
     name: "Room 302",
     floor: 3,

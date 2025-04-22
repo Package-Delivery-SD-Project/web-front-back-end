@@ -68,7 +68,10 @@ const SettingsComponent = () => {
     connectionMode: "auto",
     updateFrequency: 50,
     diagnosticsLevel: "standard",
-    rosbridgeIP: "10.108.36.115"
+    rosbridgeIP: "10.108.36.115",
+    homeX: 0.0,
+    homeY: 0.0,
+    homeZ: 0.0 // floor
   });
 
   // Track if settings have been modified
@@ -312,8 +315,40 @@ const SettingsComponent = () => {
             </Box>
             
             <Typography variant="h5" color={COLORS.grey[100]} mb={2}>
-              Camera Settings
-            </Typography>
+  Home Point Settings
+</Typography>
+<Divider sx={{ width: '100%', mb: 3 }} />
+
+<Box display="grid" gridTemplateColumns="1fr 1fr 1fr" gap={4} mb={4}>
+  <TextField
+    label="X Position"
+    variant="outlined"
+    fullWidth
+    type="number"
+    value={settings.homeX || 0}
+    onChange={(e) => handleSettingChange('homeX', parseFloat(e.target.value))}
+    sx={{ bgcolor: COLORS.primary[500], borderRadius: 1 }}
+  />
+  <TextField
+    label="Y Position"
+    variant="outlined"
+    fullWidth
+    type="number"
+    value={settings.homeY || 0}
+    onChange={(e) => handleSettingChange('homeY', parseFloat(e.target.value))}
+    sx={{ bgcolor: COLORS.primary[500], borderRadius: 1 }}
+  />
+  <TextField
+    label="Floor (Z)"
+    variant="outlined"
+    fullWidth
+    type="number"
+    value={settings.homeZ || 0}
+    onChange={(e) => handleSettingChange('homeZ', parseFloat(e.target.value))}
+    sx={{ bgcolor: COLORS.primary[500], borderRadius: 1 }}
+  />
+</Box>
+
             <Divider sx={{ width: '100%', mb: 3 }} />
             
     

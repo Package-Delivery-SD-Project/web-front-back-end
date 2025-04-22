@@ -53,6 +53,11 @@
       messageType: 'geometry_msgs/PoseStamped',
       type: 'publisher'
     },
+    homePoint: {
+      name: '/home_point',
+      messageType: 'geometry_msgs/PoseStamped',
+      type: 'publisher'
+    },
     currentPoint: {
       name: '/current_point',
       messageType: 'geometry_msgs/Pose',
@@ -63,6 +68,10 @@
         setState({ position, orientation });
       }
     }
+
+
+
+
   };
 
   export const RosProvider = ({ children }) => {
@@ -82,8 +91,13 @@
         updateFrequency: 50,
         diagnosticsLevel: "standard",
         rosbridgeIP: "10.108.36.115",
-        throttleRate: 100
+        homeX: 0.0,
+        homeY: 0.0,
+        homeZ: 0.0 // floor
       });
+    
+        
+    
       
     
       const [topicInstances, setTopicInstances] = useState({});
@@ -301,6 +315,7 @@ const publishEmail = useCallback((state) => {
       const publishEstop = useCallback((state) => {
         publish('estop', { data: state });
     }, [publish]);
+
     const publishGoalPoint = useCallback((pose) => {
       const goalMessage = {
         header: {
@@ -314,6 +329,25 @@ const publishEmail = useCallback((state) => {
       };
       publish('goalPoint', goalMessage);
     }, [publish]);
+
+    const publishHomePoint = useCallback((pose) => {
+      const goalMessage = {
+        header: {
+          frame_id: "map",  // or "base_link", depending on your setup
+          stamp: { secs: 0, nsecs: 0 }  // optional dummy stamp
+        },
+        pose: {
+          position: pose.position,
+          orientation: pose.orientation
+        }
+      };
+      publish('homePoint', goalMessage);
+
+
+
+      
+    }, [publish]);
+
     
       const publishCancelMove = useCallback(() => {
         publish('cancelMove', { data: true });
@@ -365,6 +399,7 @@ const publishEmail = useCallback((state) => {
               publishCancelMove,
               publishTeleopEnable,              
               publishEmail,
+              publishHomePoint,
               publish,
               ...topicStates // Spreads all topic-specific states
           }}>
