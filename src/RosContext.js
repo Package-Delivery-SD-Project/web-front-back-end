@@ -211,15 +211,38 @@
       //-------------------- ROS INIT --------------------
 
       const initRos = useCallback((customSettings = settings) => {
-        console.log("Attempting Ros Connection...");
-      
-        if (rosInstanceRef.current) {
-          cleanup();
-          setTimeout(() => createNewConnection(customSettings), 100);
-        } else {
-          createNewConnection(customSettings);
+        console.log("Initiating ROS with mode:", customSettings.connectionMode);
+        
+        if (customSettings.connectionMode === 'manual') {
+          console.log("Manual mode selected — skipping auto connection.");
+          return;
         }
-      }, [cleanup, settings]);
+      
+        const tryConnection = (ip) => {
+          const updatedSettings = { ...customSettings, rosbridgeIP: ip };
+          if (rosInstanceRef.current) {
+            cleanup();
+            setTimeout(() => createNewConnection(updatedSettings), 100);
+          } else {
+            createNewConnection(updatedSettings);
+          }
+        };
+      
+        if (customSettings.connectionMode === 'fallback') {
+          // try main IP first, fallback to 127.0.0.1 (or any backup IP you want)
+          tryConnection(customSettings.rosbridgeIP);
+      
+          setTimeout(() => {
+            if (!isConnected) {
+              console.warn("Primary IP failed. Trying fallback IP...");
+              tryConnection("127.0.0.1");
+            }
+          }, 3000); // wait 3 seconds before fallback
+        } else {
+          // default: auto
+          tryConnection(customSettings.rosbridgeIP);
+        }
+      }, [cleanup, settings, isConnected]);
       
 
       
