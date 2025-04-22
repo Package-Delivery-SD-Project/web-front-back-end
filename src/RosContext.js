@@ -59,12 +59,12 @@
       type: 'publisher'
     },
     currentPoint: {
-      name: '/current_point',
-      messageType: 'geometry_msgs/Pose',
+      name: '/amcl_pose',
+      messageType: 'geometry_msgs/PoseWithCovarianceStamped',
       type: 'subscriber',
       callback: (message, setState) => {
         // Access position and orientation from the Pose message
-        const { position, orientation } = message;
+        const { position, orientation } = message.pose.pose;
         setState({ position, orientation });
       }
     }
