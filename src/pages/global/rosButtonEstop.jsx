@@ -3,9 +3,16 @@ import { useRos } from '../../RosContext';
 import { Button } from '@mui/material';
 
 const RosEstopButton = () => {
-    const { ESTOP, EstopStart, publishEstop, isConnected } = useRos();
+    const { ESTOP, EstopStart,setTeleopEnable,currentState, publishEstop, isConnected } = useRos();
+
 
     const handleEmergencyStop = () => {
+
+
+        if (currentState === "teleop") {
+        setTeleopEnable(false);
+        } 
+        
         EstopStart();
         publishEstop(!ESTOP);
 

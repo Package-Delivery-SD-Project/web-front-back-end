@@ -8,7 +8,7 @@ import CameraFeed from '../../Camera';
 const GamepadComponent = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const { TeleopEnable, currentState, publishTeleopEnable, publishJoyData } = useRos();
+  const { TeleopEnable, currentState, setTeleopEnable,publishTeleopEnable, publishJoyData } = useRos();
   
   const [errorMessage, setErrorMessage] = useState("");
   const [contentHeight, setContentHeight] = useState(0);
@@ -30,8 +30,17 @@ const GamepadComponent = () => {
   const DEAD_ZONE = 0.05;
   const UPDATE_RATE = 50;
 
+
+
   // Calculate available height for content
   useEffect(() => {
+
+    if (currentState === "teleop") {
+      setTeleopEnable(true);
+    } else {
+      setTeleopEnable(false);
+    }
+
     const updateContentHeight = () => {
       if (containerRef.current && headerRef.current) {
         const windowHeight = window.innerHeight;

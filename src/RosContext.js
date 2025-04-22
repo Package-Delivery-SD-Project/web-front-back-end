@@ -355,6 +355,7 @@ const publishEmail = useCallback((state) => {
               settings,
 
               publishSettings,
+              setTeleopEnable,
               setSettingsROS,
               EstopStart,
               initRos,
