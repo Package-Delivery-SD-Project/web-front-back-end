@@ -330,6 +330,19 @@ const publishEmail = useCallback((state) => {
       publish('goalPoint', goalMessage);
     }, [publish]);
 
+
+
+    
+      const publishCancelMove = useCallback(() => {
+        publish('cancelMove', { data: true });
+        console.log("whytf this aint working lmao")
+      }, [publish]);
+      const publishTeleopEnable = useCallback((state) => {
+        setTeleopEnable(state); // Use the state setter function
+        publish('teleopEnable', { data: state });
+    }, [publish]);
+
+
     const publishHomePoint = useCallback((pose) => {
       const goalMessage = {
         header: {
@@ -348,29 +361,52 @@ const publishEmail = useCallback((state) => {
       
     }, [publish]);
 
-    
-      const publishCancelMove = useCallback(() => {
-        publish('cancelMove', { data: true });
-        console.log("whytf this aint working lmao")
-      }, [publish]);
-      const publishTeleopEnable = useCallback((state) => {
-        setTeleopEnable(state); // Use the state setter function
-        publish('teleopEnable', { data: state });
-    }, [publish]);
-
-
     const publishSettings = (newSettings) => {
       console.log("Setting new ROS settings:", newSettings);
     
-      // Close current connection
+      // If settings contains position coordinates, publish home point
+      if (newSettings.homeX !== undefined && 
+          newSettings.homeY !== undefined && 
+          newSettings.homeZ !== undefined) {
+        
+        const pose = {
+          position: {
+            x: newSettings.homeX,
+            y: newSettings.homeY,
+            z: newSettings.homeZ
+          },
+          orientation: {
+            x: 0,
+            y: 0,
+            z: 0,
+            w: 1  // Default quaternion for no rotation
+          } 
+           
+
+        };
+        
+        publishHomePoint(pose);
+      }else {
+        console.log("Unable to publish home point: Position coordinates are undefined", {
+          x: newSettings.homeX,
+          y: newSettings.homeY,
+          z: newSettings.homeZ
+        });
+      }
+    
+      // Close current connection after a delay
       if (rosInstanceRef.current) {
-        rosInstanceRef.current.close();
+        console.log("Waiting before closing ROS connection...");
+        setTimeout(() => {
+          console.log("Now closing ROS connection");
+          rosInstanceRef.current.close();
+        }, 1000); // 1 second delay before closing
       }
     
       // Update settings and reconnect using the updated state
       setSettingsROS(prevSettings => {
         const updatedSettings = { ...prevSettings, ...newSettings };
-        setTimeout(() => initRos(updatedSettings), 100); // Give time for state update
+        setTimeout(() => initRos(updatedSettings), 1500); // Increased delay to ensure connection closes first
         return updatedSettings;
       });
     };
